@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Drawing;
 
 namespace serial_test2
 {
     public class Payesh_funcs
     {
+        
         public const int R_ID=0;
         public const int R_Level=1;
 
@@ -70,14 +72,81 @@ namespace serial_test2
             output[R_ID] = input / 4 + 1;
             return output;
         }
- 
-        public static void Get_data (string input,Robot_spec_s[] robots)
-        {
-            int level = Get_number_level(input.ElementAt(0))[R_Level];
-            int ID = Get_number_level(input.ElementAt(0))[R_ID];
 
-            int[] data = Payesh_funcs.Decode_data(input.Substring(1));
-            for (int i = 0; i < 4; i++)robots[ID].R_Condition[(level - 1) * 4 + i] = data[i];
+        public static void find_fault(Robot_spec_s input)
+        {
+            input.fault = false;
+            for (int i = 0; i < 16; i++) input.spec_fault[i] = false;
+
+            if (input.R_Condition[Robot_spec_s.cycle_time_us] < 3200)
+            {
+                input.spec_fault[Robot_spec_s.cycle_time_us] = true;
+                input.fault = true;
+            }
+            if (input.R_Condition[Robot_spec_s.nsp] <= input.R_Condition[Robot_spec_s.nrp])
+            {
+                input.spec_fault[Robot_spec_s.nrp] = true;
+                input.fault = true;
+            }
+            if (input.R_Condition[Robot_spec_s.nsp] < 60)
+            {
+                input.spec_fault[Robot_spec_s.nsp] = true; 
+                input.fault = true;
+            }
+            if (input.R_Condition[Robot_spec_s.nrp] < 35)
+            {
+                input.spec_fault[Robot_spec_s.nrp] = true;
+                input.fault = true;
+            }
+
+            if (input.R_Condition[Robot_spec_s.FW_low_battery] == 1)
+            {
+                input.spec_fault[Robot_spec_s.FW_low_battery] = true;
+                input.fault = true;
+            }
+            if (input.R_Condition[Robot_spec_s.FW_motor_fault] == 1)
+            {
+                input.spec_fault[Robot_spec_s.FW_motor_fault] = true;
+                input.fault = true;
+            }
+
+            if (input.R_Condition[Robot_spec_s.FW_wireless_timeout] == 1)
+            {
+                input.spec_fault[Robot_spec_s.FW_wireless_timeout] = true;
+                input.fault = true;
+            }
+        }
+ 
+        public static string Get_data (string input,Robot_spec_s[] robots)
+        {
+            try
+            {
+                if (input.IndexOf('z') == -1)
+                {
+                }
+                else
+                {
+                    string depack = input.Substring(0, input.IndexOf('z'));
+                    int level = Get_number_level(depack.ElementAt(0))[R_Level];
+                    int ID = Get_number_level(depack.ElementAt(0))[R_ID];
+
+                    robots[ID].delay_ID = 0;
+
+                    int[] data = Payesh_funcs.Decode_data(depack.Substring(1));
+                    for (int i = 0; i < 4; i++) robots[ID].R_Condition[(level - 1) * 4 + i] = data[i];
+                    find_fault(robots[ID]);
+
+                    if (input.Count() != (input.IndexOf('z') + 1)) Get_data(input.Substring(input.IndexOf('z') + 1), robots);
+
+                    return input.Substring(input.LastIndexOf('z') + 1);
+                }
+
+            }
+            catch
+            {
+               
+            }
+            return "";
 
         }
 

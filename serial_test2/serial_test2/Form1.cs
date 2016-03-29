@@ -24,11 +24,18 @@ namespace serial_test2
         string data_received;
         string data_send;
         Robot_spec_s[] robot_data=new Robot_spec_s[12];
-        int[] delay_ID=new int[12];
+        //int[] delay_ID=new int[12];
+
+        Color color_disconnected = Color.Black;
+        Color color_correct = Color.Green;
+        Color color_problem = Color.Red;
+        Color color_near_problem = Color.Yellow;
+        
 
         private void Display_Received_Data(object sender,EventArgs e)
         {
             Receive_box.Text += data_received+"\r\n";
+            //Receive_box.Text += data_received+"\r\n";
         }
 
         public Serial_test()
@@ -42,7 +49,7 @@ namespace serial_test2
             for (int i = 0; i < 12; i++) 
             {
                 robot_data[i] = new Robot_spec_s();
-                delay_ID[i] = 0;
+                robot_data[i].delay_ID = 0;
             }
 
             if (C_D.Text == "Connect")
@@ -155,8 +162,10 @@ namespace serial_test2
 
                     C_D.Text = "Disconnect";
 
-                    Group_data_monitor.Visible = true;
+                    //Group_data_monitor.Visible = true;
                     timer.Enabled = true;
+
+                    Monitoring_Group.Visible = true;
 
                 }
                 catch
@@ -195,41 +204,33 @@ namespace serial_test2
 
         private void serialPort_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            string buffer = serialPort.ReadExisting();
             try
             {
-                if (((((int)data_received.ElementAt(0)) > ((int)'A' - 1)) && (((int)data_received.ElementAt(0)) < ((int)'Z' + 1))) || ((((int)data_received.ElementAt(0)) > ((int)'a' - 1)) && (((int)data_received.ElementAt(0)) < ((int)'z' + 1))))
+                if (((((int)buffer.ElementAt(0)) > ((int)'A' - 1)) && (((int)buffer.ElementAt(0)) < ((int)'Z' + 1))) || ((((int)buffer.ElementAt(0)) > ((int)'a' - 1)) && (((int)buffer.ElementAt(0)) < ((int)'z' + 1))))
                 {
-                    try
-                    {
-                        data_received = serialPort.ReadExisting();
-                        serialPort.DiscardInBuffer();
-                        Payesh_funcs.Get_data(data_received, robot_data);
 
-                    }
-                    catch
-                    {
-                    }
+                    data_received = buffer;
+                    serialPort.DiscardInBuffer();
+                    Payesh_funcs.Get_data(data_received, robot_data);
                     this.Invoke(new EventHandler(Display_Received_Data));
                 }
-                else
-                {
-                    try
-                    {
-                        data_received += serialPort.ReadExisting();
-                        serialPort.DiscardInBuffer();
-                        Payesh_funcs.Get_data(data_received, robot_data);
+                //else
+                //{
+                //    data_received += buffer;
+                //    serialPort.DiscardInBuffer();
+                //    Payesh_funcs.Get_data(data_received, robot_data);
 
-                    }
-                    catch
-                    {
-                    }
-                    this.Invoke(new EventHandler(Display_Received_Data));
-                }
+                //    this.Invoke(new EventHandler(Display_Received_Data));
+                //}
             }
             catch
             {
- 
+
             }
+            //data_received = serialPort.ReadExisting();
+            //this.Invoke(new EventHandler(Display_Received_Data));
+
         }
 
         private void Flush_t_Click(object sender, EventArgs e)
@@ -260,28 +261,223 @@ namespace serial_test2
 
         private void timer_Tick(object sender, EventArgs e)
         {
+
             for (int i = 0; i < 12; i++)
             {
-                delay_ID[i]++;
-            }
-            int reza_selected_robot = 4;
+                robot_data[i].delay_ID++;
+                
+                color_label(i, color_correct);
 
-            time_us_label.Text = robot_data[reza_selected_robot].R_Condition[0].ToString();
-            FW_wireless_label.Text = robot_data[reza_selected_robot].R_Condition[1].ToString();
-            FW_motor_label.Text = robot_data[reza_selected_robot].R_Condition[2].ToString();
-            FW_battery_label.Text = robot_data[reza_selected_robot].R_Condition[3].ToString();
-            ct_label.Text = robot_data[reza_selected_robot].R_Condition[4].ToString();
-            nsp_label.Text = robot_data[reza_selected_robot].R_Condition[5].ToString();
-            nrp_label.Text = robot_data[reza_selected_robot].R_Condition[6].ToString();
-            ss_label.Text = robot_data[reza_selected_robot].R_Condition[7].ToString();
-            I3_full_label.Text = robot_data[reza_selected_robot].R_Condition[8].ToString();
-            wrc_label.Text = robot_data[reza_selected_robot].R_Condition[9].ToString();
-            temp_label.Text = robot_data[reza_selected_robot].R_Condition[10].ToString();
-            I0_label.Text = robot_data[reza_selected_robot].R_Condition[11].ToString();
-            I1_label.Text = robot_data[reza_selected_robot].R_Condition[12].ToString();
-            I2_label.Text = robot_data[reza_selected_robot].R_Condition[13].ToString();
-            I3_label.Text = robot_data[reza_selected_robot].R_Condition[14].ToString();
-            battery_1000_label.Text = robot_data[reza_selected_robot].R_Condition[15].ToString();
+                if (robot_data[i].fault) color_label(i, color_problem);
+
+                if (robot_data[i].delay_ID > 10)
+                {
+                    color_label(i, color_disconnected);
+                }
+
+            }
+            if (checkBox1.Checked)
+            {
+                int id_selected = Int16.Parse(Robot_select_combo.Text);
+
+                if (robot_data[id_selected].delay_ID > 10) label25.Text = "This Id is Disconnected .";
+                else
+                {
+                    label25.Text = "Connected";
+                }
+
+                time_us_label.Text = robot_data[id_selected].R_Condition[0].ToString();
+                FW_wireless_label.Text = robot_data[id_selected].R_Condition[1].ToString();
+                FW_motor_label.Text = robot_data[id_selected].R_Condition[2].ToString();
+                FW_battery_label.Text = robot_data[id_selected].R_Condition[3].ToString();
+                ct_label.Text = robot_data[id_selected].R_Condition[4].ToString();
+                nsp_label.Text = robot_data[id_selected].R_Condition[5].ToString();
+                nrp_label.Text = robot_data[id_selected].R_Condition[6].ToString();
+                ss_label.Text = robot_data[id_selected].R_Condition[7].ToString();
+                I3_full_label.Text = robot_data[id_selected].R_Condition[8].ToString();
+                wrc_label.Text = robot_data[id_selected].R_Condition[9].ToString();
+                temp_label.Text = robot_data[id_selected].R_Condition[10].ToString();
+                I0_label.Text = robot_data[id_selected].R_Condition[11].ToString();
+                I1_label.Text = robot_data[id_selected].R_Condition[12].ToString();
+                I2_label.Text = robot_data[id_selected].R_Condition[13].ToString();
+                I3_label.Text = robot_data[id_selected].R_Condition[14].ToString();
+                battery_1000_label.Text = robot_data[id_selected].R_Condition[15].ToString();
+
+                for (int i = 1; i < 17; i++)
+                {
+                    color_label(11 + i, Color.White);
+                    if (robot_data[id_selected].spec_fault[i-1]) color_label(11 + i, color_problem);
+                }
+            }
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            
+            if (checkBox1.Checked)
+            {
+                Manual_Group.Visible = false;
+                Group_data_monitor.Visible = true;
+            }
+            else
+            {
+                Group_data_monitor.Visible = false;
+                Manual_Group.Visible = true;
+            }
+        }
+
+        private void color_label(int input, Color c)
+        {
+            Color fore_colour=Color.Black;
+
+            if (c.Equals(Color.Black)) fore_colour = Color.White;
+            if (c.Equals(Color.Red)) fore_colour = Color.Yellow;
+            if (c.Equals(Color.Green)) fore_colour = Color.White;
+            if (c.Equals(Color.Yellow)) fore_colour = Color.Black;
+
+            
+            switch (input)
+            {
+                case 0 :
+                    ID0_label.BackColor = c;
+                    ID0_label.ForeColor = fore_colour;
+                    break;
+
+                case 1:
+                    ID1_label.BackColor = c;
+                    ID1_label.ForeColor = fore_colour;
+                    break;
+
+                case 2:
+                    ID2_label.BackColor = c;
+                    ID2_label.ForeColor = fore_colour;
+                    break;
+
+                case 3:
+                    ID3_label.BackColor = c;
+                    ID3_label.ForeColor = fore_colour;
+                    break;
+
+                case 4:
+                    ID4_label.BackColor = c;
+                    ID4_label.ForeColor = fore_colour;
+                    break;
+
+                case 5:
+                    ID5_label.BackColor = c;
+                    ID5_label.ForeColor = fore_colour;
+                    break;
+
+                case 6:
+                    ID6_label.BackColor = c;
+                    ID6_label.ForeColor = fore_colour;
+                    break;
+
+                case 7:
+                    ID7_label.BackColor = c;
+                    ID7_label.ForeColor = fore_colour;
+                    break;
+
+                case 8:
+                    ID8_label.BackColor = c;
+                    ID8_label.ForeColor = fore_colour;
+                    break;
+
+                case 9:
+                    ID9_label.BackColor = c;
+                    ID9_label.ForeColor = fore_colour;
+                    break;
+
+                case 10:
+                    ID10_label.BackColor = c;
+                    ID10_label.ForeColor = fore_colour;
+                    break;
+
+                case 11:
+                    ID11_label.BackColor = c;
+                    ID11_label.ForeColor = fore_colour;
+                    break;
+                    
+                case 12:
+                    time_us_label.BackColor = c;
+                    time_us_label.ForeColor = fore_colour;
+                    break;
+
+                case 13:
+                    FW_wireless_label.BackColor = c;
+                    FW_wireless_label.ForeColor = fore_colour;
+                    break;
+
+                case 14:
+                    FW_motor_label.BackColor = c;
+                    FW_motor_label.ForeColor = fore_colour;
+                    break;
+
+                case 15:
+                    FW_battery_label.BackColor = c;
+                    FW_battery_label.ForeColor = fore_colour;
+                    break;
+
+                case 16:
+                    ct_label.BackColor = c;
+                    ct_label.ForeColor = fore_colour;
+                    break;
+
+                case 17:
+                    nsp_label.BackColor = c;
+                    nsp_label.ForeColor = fore_colour;
+                    break;
+
+                case 18:
+                    nrp_label.BackColor = c;
+                    nrp_label.ForeColor = fore_colour;
+                    break;
+
+                case 19:
+                    ss_label.BackColor = c;
+                    ss_label.ForeColor = fore_colour;
+                    break;
+
+                case 20:
+                    I3_full_label.BackColor = c;
+                    I3_full_label.ForeColor = fore_colour;
+                    break;
+
+                case 21:
+                    wrc_label.BackColor = c;
+                    wrc_label.ForeColor = fore_colour;
+                    break;
+
+                case 22:
+                    temp_label.BackColor = c;
+                    temp_label.ForeColor = fore_colour;
+                    break;
+
+                case 23:
+                    I0_label.BackColor = c;
+                    I0_label.ForeColor = fore_colour;
+                    break;
+
+                case 24:
+                    I1_label.BackColor = c;
+                    I1_label.ForeColor = fore_colour;
+                    break;
+
+                case 25:
+                    I2_label.BackColor = c;
+                    I2_label.ForeColor = fore_colour;
+                    break;
+
+                case 26:
+                    I3_label.BackColor = c;
+                    I3_label.ForeColor = fore_colour;
+                    break;
+
+                case 27:
+                    battery_1000_label.BackColor = c;
+                    battery_1000_label.ForeColor = fore_colour;
+                    break;
+            }
         }
     }
 }
