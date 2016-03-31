@@ -29,6 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Serial_test));
             this.combo_COM = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
@@ -91,6 +92,7 @@
             this.Robot_select_combo = new System.Windows.Forms.ComboBox();
             this.timer = new System.Windows.Forms.Timer(this.components);
             this.Monitoring_Group = new System.Windows.Forms.GroupBox();
+            this.fault_textbox = new System.Windows.Forms.TextBox();
             this.ID11_label = new System.Windows.Forms.Label();
             this.ID10_label = new System.Windows.Forms.Label();
             this.ID9_label = new System.Windows.Forms.Label();
@@ -783,6 +785,7 @@
             // 
             // Monitoring_Group
             // 
+            this.Monitoring_Group.Controls.Add(this.fault_textbox);
             this.Monitoring_Group.Controls.Add(this.ID11_label);
             this.Monitoring_Group.Controls.Add(this.ID10_label);
             this.Monitoring_Group.Controls.Add(this.ID9_label);
@@ -795,13 +798,22 @@
             this.Monitoring_Group.Controls.Add(this.ID2_label);
             this.Monitoring_Group.Controls.Add(this.ID1_label);
             this.Monitoring_Group.Controls.Add(this.ID0_label);
-            this.Monitoring_Group.Location = new System.Drawing.Point(936, 24);
+            this.Monitoring_Group.Location = new System.Drawing.Point(928, 12);
             this.Monitoring_Group.Name = "Monitoring_Group";
-            this.Monitoring_Group.Size = new System.Drawing.Size(183, 365);
+            this.Monitoring_Group.Size = new System.Drawing.Size(423, 393);
             this.Monitoring_Group.TabIndex = 20;
             this.Monitoring_Group.TabStop = false;
             this.Monitoring_Group.Text = "Monitoring";
             this.Monitoring_Group.Visible = false;
+            // 
+            // fault_textbox
+            // 
+            this.fault_textbox.Location = new System.Drawing.Point(170, 15);
+            this.fault_textbox.Multiline = true;
+            this.fault_textbox.Name = "fault_textbox";
+            this.fault_textbox.ReadOnly = true;
+            this.fault_textbox.Size = new System.Drawing.Size(247, 372);
+            this.fault_textbox.TabIndex = 44;
             // 
             // ID11_label
             // 
@@ -811,6 +823,7 @@
             this.ID11_label.Size = new System.Drawing.Size(37, 17);
             this.ID11_label.TabIndex = 43;
             this.ID11_label.Text = "ID11";
+            this.ID11_label.Click += new System.EventHandler(this.ID11_label_Click);
             // 
             // ID10_label
             // 
@@ -820,6 +833,7 @@
             this.ID10_label.Size = new System.Drawing.Size(37, 17);
             this.ID10_label.TabIndex = 42;
             this.ID10_label.Text = "ID10";
+            this.ID10_label.Click += new System.EventHandler(this.ID10_label_Click);
             // 
             // ID9_label
             // 
@@ -829,6 +843,7 @@
             this.ID9_label.Size = new System.Drawing.Size(29, 17);
             this.ID9_label.TabIndex = 41;
             this.ID9_label.Text = "ID9";
+            this.ID9_label.Click += new System.EventHandler(this.ID9_label_Click);
             // 
             // ID8_label
             // 
@@ -838,6 +853,7 @@
             this.ID8_label.Size = new System.Drawing.Size(29, 17);
             this.ID8_label.TabIndex = 40;
             this.ID8_label.Text = "ID8";
+            this.ID8_label.Click += new System.EventHandler(this.ID8_label_Click);
             // 
             // ID7_label
             // 
@@ -847,6 +863,7 @@
             this.ID7_label.Size = new System.Drawing.Size(29, 17);
             this.ID7_label.TabIndex = 39;
             this.ID7_label.Text = "ID7";
+            this.ID7_label.Click += new System.EventHandler(this.ID7_label_Click);
             // 
             // ID6_label
             // 
@@ -856,6 +873,7 @@
             this.ID6_label.Size = new System.Drawing.Size(29, 17);
             this.ID6_label.TabIndex = 38;
             this.ID6_label.Text = "ID6";
+            this.ID6_label.Click += new System.EventHandler(this.ID6_label_Click);
             // 
             // ID5_label
             // 
@@ -865,6 +883,7 @@
             this.ID5_label.Size = new System.Drawing.Size(29, 17);
             this.ID5_label.TabIndex = 37;
             this.ID5_label.Text = "ID5";
+            this.ID5_label.Click += new System.EventHandler(this.ID5_label_Click);
             // 
             // ID4_label
             // 
@@ -874,6 +893,7 @@
             this.ID4_label.Size = new System.Drawing.Size(29, 17);
             this.ID4_label.TabIndex = 36;
             this.ID4_label.Text = "ID4";
+            this.ID4_label.Click += new System.EventHandler(this.ID4_label_Click);
             // 
             // ID3_label
             // 
@@ -883,6 +903,7 @@
             this.ID3_label.Size = new System.Drawing.Size(29, 17);
             this.ID3_label.TabIndex = 35;
             this.ID3_label.Text = "ID3";
+            this.ID3_label.Click += new System.EventHandler(this.ID3_label_Click);
             // 
             // ID2_label
             // 
@@ -892,6 +913,7 @@
             this.ID2_label.Size = new System.Drawing.Size(29, 17);
             this.ID2_label.TabIndex = 34;
             this.ID2_label.Text = "ID2";
+            this.ID2_label.Click += new System.EventHandler(this.ID2_label_Click);
             // 
             // ID1_label
             // 
@@ -901,6 +923,7 @@
             this.ID1_label.Size = new System.Drawing.Size(29, 17);
             this.ID1_label.TabIndex = 33;
             this.ID1_label.Text = "ID1";
+            this.ID1_label.Click += new System.EventHandler(this.ID1_label_Click);
             // 
             // ID0_label
             // 
@@ -911,18 +934,21 @@
             this.ID0_label.Size = new System.Drawing.Size(29, 17);
             this.ID0_label.TabIndex = 32;
             this.ID0_label.Text = "ID0";
+            this.ID0_label.Click += new System.EventHandler(this.ID0_label_Click);
             // 
             // Serial_test
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1133, 413);
+            this.BackColor = System.Drawing.SystemColors.ButtonFace;
+            this.ClientSize = new System.Drawing.Size(1371, 413);
             this.Controls.Add(this.Monitoring_Group);
             this.Controls.Add(this.Group_data_monitor);
             this.Controls.Add(this.Manual_Group);
             this.Controls.Add(this.groupBox1);
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "Serial_test";
-            this.Text = "Payesh_proj";
+            this.Text = "Payesh";
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
             this.Manual_Group.ResumeLayout(false);
@@ -1013,6 +1039,7 @@
         private System.Windows.Forms.Label ID2_label;
         private System.Windows.Forms.Label ID1_label;
         private System.Windows.Forms.Label ID0_label;
+        private System.Windows.Forms.TextBox fault_textbox;
     }
 }
 

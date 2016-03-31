@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monitoring program", "serial_test2\Monitoring program.csproj", "{C10FCF01-E1E7-49CE-8030-00ABB547348D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Monitoring program", "Monitoring program.csproj", "{C10FCF01-E1E7-49CE-8030-00ABB547348D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -166,7 +166,7 @@ namespace serial_test2
                     timer.Enabled = true;
 
                     Monitoring_Group.Visible = true;
-
+                  
                 }
                 catch
                 {
@@ -261,6 +261,7 @@ namespace serial_test2
 
         private void timer_Tick(object sender, EventArgs e)
         {
+            fault_textbox.Text="";
 
             for (int i = 0; i < 12; i++)
             {
@@ -268,45 +269,72 @@ namespace serial_test2
                 
                 color_label(i, color_correct);
 
-                if (robot_data[i].fault) color_label(i, color_problem);
+                if (robot_data[i].fault)
+                {
+                    color_label(i, color_problem);
 
+                    for (int j = 0; j < 16; j++)
+                    {
+                        if (robot_data[i].spec_fault[j] != 0 && robot_data[i].delay_ID < 11)
+                        {
+                            fault_textbox.Text += "Robot " + i.ToString() + " -> " + Robot_spec_s.parameters_string[j]+"\r\n";
+                        }
+                    }
+                }
                 if (robot_data[i].delay_ID > 10)
                 {
                     color_label(i, color_disconnected);
                 }
 
             }
+
+            ////filter
+            //fault_textbox.Text = "filter0 : " + robot_data[0].give_filter().ToString();
+            //fault_textbox.Text += "\r\nfilter1 : " + robot_data[1].give_filter().ToString();
+            //fault_textbox.Text += "\r\nfilter4 : " + robot_data[4].give_filter().ToString();
+            //fault_textbox.Text += "\r\nfilter7 : " + robot_data[7].give_filter().ToString();
+
+
             if (checkBox1.Checked)
             {
                 int id_selected = Int16.Parse(Robot_select_combo.Text);
 
-                if (robot_data[id_selected].delay_ID > 10) label25.Text = "This Id is Disconnected .";
+                if (robot_data[id_selected].delay_ID > 10) label25.Text = "This ID is Disconnected .";
                 else
                 {
                     label25.Text = "Connected";
                 }
 
-                time_us_label.Text = robot_data[id_selected].R_Condition[0].ToString();
-                FW_wireless_label.Text = robot_data[id_selected].R_Condition[1].ToString();
-                FW_motor_label.Text = robot_data[id_selected].R_Condition[2].ToString();
-                FW_battery_label.Text = robot_data[id_selected].R_Condition[3].ToString();
-                ct_label.Text = robot_data[id_selected].R_Condition[4].ToString();
-                nsp_label.Text = robot_data[id_selected].R_Condition[5].ToString();
-                nrp_label.Text = robot_data[id_selected].R_Condition[6].ToString();
-                ss_label.Text = robot_data[id_selected].R_Condition[7].ToString();
-                I3_full_label.Text = robot_data[id_selected].R_Condition[8].ToString();
-                wrc_label.Text = robot_data[id_selected].R_Condition[9].ToString();
-                temp_label.Text = robot_data[id_selected].R_Condition[10].ToString();
-                I0_label.Text = robot_data[id_selected].R_Condition[11].ToString();
-                I1_label.Text = robot_data[id_selected].R_Condition[12].ToString();
-                I2_label.Text = robot_data[id_selected].R_Condition[13].ToString();
-                I3_label.Text = robot_data[id_selected].R_Condition[14].ToString();
-                battery_1000_label.Text = robot_data[id_selected].R_Condition[15].ToString();
+                time_us_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.cycle_time_us].ToString();
+                FW_wireless_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.FW_wireless_timeout].ToString();
+                FW_motor_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.FW_motor_fault].ToString();
+                FW_battery_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.FW_low_battery].ToString();
+                ct_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.ct].ToString();
+                nsp_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.nsp].ToString();
+                nrp_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.nrp].ToString();
+                ss_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.ss].ToString();
+                I3_full_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.shoot_full].ToString();
+                wrc_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.wrc].ToString();
+                temp_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.MCU_temperature].ToString();
+                I0_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.I0].ToString();
+                I1_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.I1].ToString();
+                I2_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.I2].ToString();
+                I3_label.Text = robot_data[id_selected].R_Condition[Robot_spec_s.I3].ToString();
+                battery_1000_label.Text = (robot_data[id_selected].R_Condition[Robot_spec_s.bat_1000] / 1000).ToString() + "," + (robot_data[id_selected].R_Condition[Robot_spec_s.bat_1000] % 1000).ToString();
+
+
 
                 for (int i = 1; i < 17; i++)
                 {
                     color_label(11 + i, Color.White);
-                    if (robot_data[id_selected].spec_fault[i-1]) color_label(11 + i, color_problem);
+                    if (robot_data[id_selected].spec_fault[i - 1] == Robot_spec_s.red_pos) 
+                    {
+                        color_label(11 + i, color_problem);
+                    }
+                    if (robot_data[id_selected].spec_fault[i - 1] == Robot_spec_s.yellow_pos)
+                    {
+                        color_label(11 + i, color_near_problem);
+                    }
                 }
             }
         }
@@ -328,13 +356,18 @@ namespace serial_test2
 
         private void color_label(int input, Color c)
         {
-            Color fore_colour=Color.Black;
+            //in competetion
+            Color fore_colour = Color.Black;
 
             if (c.Equals(Color.Black)) fore_colour = Color.White;
             if (c.Equals(Color.Red)) fore_colour = Color.Yellow;
             if (c.Equals(Color.Green)) fore_colour = Color.White;
             if (c.Equals(Color.Yellow)) fore_colour = Color.Black;
 
+
+            //movaghat
+            //c = Color.White;
+            //Color fore_colour = Color.Black;
             
             switch (input)
             {
@@ -479,5 +512,66 @@ namespace serial_test2
                     break;
             }
         }
+
+        private void ID1_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "1";
+        }
+
+        private void ID0_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "0";
+        }
+
+        private void ID2_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "2";
+        }
+
+        private void ID3_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "3";
+        }
+
+        private void ID4_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "4";
+        }
+
+        private void ID5_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "5";
+        }
+
+        private void ID6_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "6";
+        }
+
+        private void ID7_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "7";
+        }
+
+        private void ID8_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "8";  
+        }
+
+        private void ID9_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "9";
+        }
+
+        private void ID10_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "10";
+        }
+
+        private void ID11_label_Click(object sender, EventArgs e)
+        {
+            Robot_select_combo.Text = "11";
+        }
+
     }
 }

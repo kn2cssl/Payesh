@@ -76,44 +76,70 @@ namespace serial_test2
         public static void find_fault(Robot_spec_s input)
         {
             input.fault = false;
-            for (int i = 0; i < 16; i++) input.spec_fault[i] = false;
+            for (int i = 0; i < 16; i++) input.spec_fault[i] = Robot_spec_s.white_pos;
 
-            if (input.R_Condition[Robot_spec_s.cycle_time_us] < 3200)
+            if (input.R_Condition[Robot_spec_s.cycle_time_us] < 2800)
             {
-                input.spec_fault[Robot_spec_s.cycle_time_us] = true;
+                input.spec_fault[Robot_spec_s.cycle_time_us] = Robot_spec_s.red_pos;
                 input.fault = true;
             }
             if (input.R_Condition[Robot_spec_s.nsp] <= input.R_Condition[Robot_spec_s.nrp])
             {
-                input.spec_fault[Robot_spec_s.nrp] = true;
+                input.spec_fault[Robot_spec_s.nrp] = Robot_spec_s.red_pos;
                 input.fault = true;
             }
-            if (input.R_Condition[Robot_spec_s.nsp] < 60)
+            if (input.R_Condition[Robot_spec_s.nsp] < 30)
             {
-                input.spec_fault[Robot_spec_s.nsp] = true; 
+                input.spec_fault[Robot_spec_s.nsp] = Robot_spec_s.yellow_pos; 
                 input.fault = true;
+                if (input.R_Condition[Robot_spec_s.nsp] < 20)
+                {
+                    input.spec_fault[Robot_spec_s.nsp] = Robot_spec_s.red_pos; 
+                }
             }
-            if (input.R_Condition[Robot_spec_s.nrp] < 35)
+            if (input.R_Condition[Robot_spec_s.nrp] < 20)
             {
-                input.spec_fault[Robot_spec_s.nrp] = true;
+                input.spec_fault[Robot_spec_s.nrp] = Robot_spec_s.yellow_pos;
                 input.fault = true;
+                if (input.R_Condition[Robot_spec_s.nrp] < 10)
+                {
+                    input.spec_fault[Robot_spec_s.nrp] = Robot_spec_s.red_pos; 
+                }
             }
 
             if (input.R_Condition[Robot_spec_s.FW_low_battery] == 1)
             {
-                input.spec_fault[Robot_spec_s.FW_low_battery] = true;
+                input.spec_fault[Robot_spec_s.FW_low_battery] = Robot_spec_s.red_pos;
                 input.fault = true;
             }
             if (input.R_Condition[Robot_spec_s.FW_motor_fault] == 1)
             {
-                input.spec_fault[Robot_spec_s.FW_motor_fault] = true;
+                input.spec_fault[Robot_spec_s.FW_motor_fault] = Robot_spec_s.red_pos;
                 input.fault = true;
             }
 
             if (input.R_Condition[Robot_spec_s.FW_wireless_timeout] == 1)
             {
-                input.spec_fault[Robot_spec_s.FW_wireless_timeout] = true;
+                input.spec_fault[Robot_spec_s.FW_wireless_timeout] = Robot_spec_s.red_pos;
                 input.fault = true;
+            }
+            //if (input.R_Condition[Robot_spec_s.wrc] > 10) 
+            //{
+            //    input.spec_fault[Robot_spec_s.wrc] = Robot_spec_s.yellow_pos;
+            //    input.fault = true;
+            //    if (input.R_Condition[Robot_spec_s.wrc] > 30)
+            //    {
+            //        input.spec_fault[Robot_spec_s.wrc] = Robot_spec_s.red_pos;
+            //    }
+            //}
+            if (input.R_Condition[Robot_spec_s.bat_1000] < 11000)
+            {
+                input.spec_fault[Robot_spec_s.bat_1000] = Robot_spec_s.yellow_pos;
+                input.fault = true;
+                if (input.R_Condition[Robot_spec_s.bat_1000] < 10500)
+                {
+                    input.spec_fault[Robot_spec_s.bat_1000] = Robot_spec_s.red_pos;
+                }
             }
         }
  
@@ -135,6 +161,11 @@ namespace serial_test2
                     int[] data = Payesh_funcs.Decode_data(depack.Substring(1));
                     for (int i = 0; i < 4; i++) robots[ID].R_Condition[(level - 1) * 4 + i] = data[i];
                     find_fault(robots[ID]);
+                    
+
+                    // find filter
+                    if (level == Robot_spec_s.filter_level) robots[ID].add_filter(robots[ID].R_Condition[Robot_spec_s.filter_num]);
+
 
                     if (input.Count() != (input.IndexOf('z') + 1)) Get_data(input.Substring(input.IndexOf('z') + 1), robots);
 
